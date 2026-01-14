@@ -1007,6 +1007,58 @@ visualization_msgs::msg::MarkerArray parkingSpacesAsMarkerArray(
     lanelet::ConstPolygon3d polygon;
     if (utils::lineStringWithWidthToPolygon(linestring, &polygon)) {
       pushPolygonMarker(&marker, polygon, c);
+
+      if (!polygon.empty()) {
+        double cx = 0.0;
+        double cy = 0.0;
+        double cz = 0.0;
+        for (const auto & pt : polygon) {
+          cx += pt.x();
+          cy += pt.y();
+          cz += pt.z();
+        }
+        const double inv_n = 1.0 / static_cast<double>(polygon.size());
+        cx *= inv_n;
+        cy *= inv_n;
+        cz *= inv_n;
+
+        visualization_msgs::msg::Marker text_marker;
+        text_marker.header.frame_id = "map";
+        text_marker.header.stamp = rclcpp::Clock().now();
+        text_marker.ns = "parking_space_id";
+        text_marker.id = static_cast<int32_t>(linestring.id());
+        text_marker.type = visualization_msgs::msg::Marker::TEXT_VIEW_FACING;
+        text_marker.action = visualization_msgs::msg::Marker::ADD;
+
+        double dx = 0.0;
+        double dy = 0.0;
+        if (linestring.size() >= 2) {
+          const auto & p0 = linestring.front();
+          const auto & p1 = linestring.back();
+          dx = p1.x() - p0.x();
+          dy = p1.y() - p0.y();
+        }
+        const double yaw = std::atan2(dy, dx);
+
+        text_marker.pose.position.x = cx;
+        text_marker.pose.position.y = cy;
+        text_marker.pose.position.z = cz + 0.05;
+        text_marker.pose.orientation.x = 0.0;
+        text_marker.pose.orientation.y = 0.0;
+        text_marker.pose.orientation.z = std::sin(yaw * 0.5);
+        text_marker.pose.orientation.w = std::cos(yaw * 0.5);
+
+        text_marker.color = c;
+        if (text_marker.color.a <= 0.0f) {
+          text_marker.color.a = 1.0f;
+        }
+        text_marker.scale.z = 0.6;
+        text_marker.frame_locked = false;
+        text_marker.lifetime = rclcpp::Duration(0, 0);
+        text_marker.text = std::string("PS_ID:") + std::to_string(linestring.id());
+
+        marker_array.markers.push_back(text_marker);
+      }
     } else {
       std::cerr << "parking space " << linestring.id() << " failed conversion." << std::endl;
     }
@@ -1015,6 +1067,7 @@ visualization_msgs::msg::MarkerArray parkingSpacesAsMarkerArray(
   if (!marker.points.empty()) {
     marker_array.markers.push_back(marker);
   }
+
   return marker_array;
 }
 
