@@ -1120,7 +1120,6 @@ visualization_msgs::msg::MarkerArray parkingSpacesAsMarkerArray(
   if (!marker.points.empty()) {
     marker_array.markers.push_back(marker);
   }
-
   return marker_array;
 }
 
