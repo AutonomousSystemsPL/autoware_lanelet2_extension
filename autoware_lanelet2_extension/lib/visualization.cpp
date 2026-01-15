@@ -1024,7 +1024,7 @@ visualization_msgs::msg::MarkerArray parkingSpacesAsMarkerArray(
 
         visualization_msgs::msg::Marker text_marker;
         text_marker.header.frame_id = "map";
-        text_marker.header.stamp = rclcpp::Clock().now();
+        text_marker.header.stamp = rclcpp::Time();
         text_marker.ns = "parking_space_id";
         text_marker.id = static_cast<int32_t>(linestring.id());
         text_marker.type = visualization_msgs::msg::Marker::TEXT_VIEW_FACING;
@@ -1039,10 +1039,11 @@ visualization_msgs::msg::MarkerArray parkingSpacesAsMarkerArray(
           dy = p1.y() - p0.y();
         }
         const double yaw = std::atan2(dy, dx);
+        static constexpr double slightly_above_ground = 0.05;
 
         text_marker.pose.position.x = cx;
         text_marker.pose.position.y = cy;
-        text_marker.pose.position.z = cz + 0.05;
+        text_marker.pose.position.z = cz + slightly_above_ground;
         text_marker.pose.orientation.x = 0.0;
         text_marker.pose.orientation.y = 0.0;
         text_marker.pose.orientation.z = std::sin(yaw * 0.5);
