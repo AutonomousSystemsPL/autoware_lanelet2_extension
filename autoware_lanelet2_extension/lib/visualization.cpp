@@ -1049,14 +1049,14 @@ visualization_msgs::msg::MarkerArray parkingSpacesAsMarkerArray(
         text_marker.pose.orientation.z = std::sin(yaw * 0.5);
         text_marker.pose.orientation.w = std::cos(yaw * 0.5);
 
-        text_marker.color = c;
-        if (text_marker.color.a <= 0.0f) {
-          text_marker.color.a = 1.0f;
-        }
+        text_marker.color.r = 0.45f;
+        text_marker.color.g = 0.70f;
+        text_marker.color.b = 0.90f;
+        text_marker.color.a = 1.0f;
         text_marker.scale.z = 0.6;
         text_marker.frame_locked = false;
         text_marker.lifetime = rclcpp::Duration(0, 0);
-        text_marker.text = std::string("PS_ID:") + std::to_string(linestring.id());
+        text_marker.text = std::string("ID:") + std::to_string(linestring.id());
 
         marker_array.markers.push_back(text_marker);
       }
